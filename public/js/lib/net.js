@@ -1,4 +1,4 @@
-const serverURL = "http://localhost:8080";
+const serverURL = "http://kekmate.tech";
 const storageURL = serverURL + "/storage/";
 
 export default class Net {
