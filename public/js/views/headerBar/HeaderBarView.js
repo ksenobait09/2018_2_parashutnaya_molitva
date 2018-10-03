@@ -11,7 +11,6 @@ export default class HeaderBarView extends View {
         this._eventBus.subscribeToEvent('signoutResponse', this._onAuthResponse.bind(this));
         this._eventBus.subscribeToEvent('loadAvatarResponse', this._onLoadAvatarResponse.bind(this));
         this._globalEventBus.subscribeToEvent('renderHeaderBar', this._onRenderHeader.bind(this));
-
     }
 
     render (root, data = {}) {
@@ -21,12 +20,11 @@ export default class HeaderBarView extends View {
 
     _onRenderHeader (data) {
         this._eventBus.triggerEvent('checkAuth', data);
-
     }
 
     _onLoadAvatarResponse (data) {
         if (!data.avatar) {
-            data.avatar = "default-avatar.svg";
+            data.avatar = 'default-avatar.svg';
         }
 
         super.render(null, data);
@@ -46,7 +44,7 @@ export default class HeaderBarView extends View {
     }
 
     _onAuthResponse (data) {
-        if (data.isAuth === undefined || data.isAuth === null) {
+        if (data.isAuth == null) {
             console.log('No isAuth param');
             super.render(null);
             return;

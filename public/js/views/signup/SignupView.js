@@ -16,7 +16,6 @@ export default class SignupView extends View {
     render (root, data = {}) {
         super.render(root, data);
 
-
         this._loadingEl = this.el.querySelector('.loading');
 
         this._warning = this.el.querySelector('.js-warning-common');
@@ -39,24 +38,41 @@ export default class SignupView extends View {
         this._form.addEventListener('submit', this._onSubmit.bind(this));
     }
 
-
-    _showWarning(text) {
+    _showWarning (text) {
         this._clearWarning();
         this._warning.innerHTML = `<p>${text}</p>`;
     }
 
-    _clearWarning() {
-        this._warning.innerHTML = "";
+    _clearWarning () {
+        this._warning.innerHTML = '';
     }
 
-    _onSignupResponse(data) {
+    _onSignupResponse (data) {
         this._endLoadWaiting();
         const error = data.error;
-        if (error){
-            this._showWarning(error)
-        } else {
-            this._clearWarning();
+        const field = data.field;
+
+        if (!field){
+            if (error) {
+                this._showWarning(error);
+            } else {
+                this._clearWarning();
+            }
+            return
         }
+
+        switch (field) {
+            case "email":
+                this._onChangeEmailResponse(data);
+                break;
+            case "password":
+                this._onChangePassResponse(data);
+                break;
+            default:
+                console.error("Undefined field:" + field);
+                break;
+        }
+
     }
 
     _onChangeRepassResponse (data) {

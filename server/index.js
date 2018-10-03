@@ -1,4 +1,4 @@
-const port = 4000;
+const port = 4001;
 
 const path = require('path');
 const express = require('express');
@@ -16,8 +16,8 @@ app.use(express.static(publicRoot));
 app.use(body.json());
 
 app.get('*', (req, res) => {
-    log("index path: ", indexPath);
-    fs.readFile(indexPath, {encoding: "utf-8"}, (err, file) => {
+    log('index path: ', indexPath);
+    fs.readFile(indexPath, { encoding: 'utf-8' }, (err, file) => {
         if (err) {
             log(err);
             res.statusCode = 404;

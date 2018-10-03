@@ -1,6 +1,6 @@
 import View from '../../lib/view.js';
 import template from './profile.tmpl.js';
-import SignupView from "../signup/SignupView.js";
+import SignupView from '../signup/SignupView.js';
 
 export default class ProfileView extends View {
     constructor({eventBus = {}} = {}) {
@@ -14,8 +14,6 @@ export default class ProfileView extends View {
         this._eventBus.subscribeToEvent('changeAvatarSuccess', this._onChangeAvatarSuccess.bind(this));
         this._eventBus.subscribeToEvent('submitEmailSuccess', this._onSubmitEmailSucces.bind(this));
         this._eventBus.subscribeToEvent('submitPasswordSuccess', this._onSubmitPasswordSucces.bind(this));
-
-
     }
 
     render(root, data = {}) {
@@ -23,18 +21,26 @@ export default class ProfileView extends View {
         this._eventBus.triggerEvent('checkAuth');
     }
 
-    _onChangeAvatarResponse(data){
-        console.log(data.error);
+    _onChangeAvatarResponse(data) {
+        if (data.error) {
+            this._showElement(this._avatarUploaderWarning);
+            this._avatarUploaderWarning.innerHTML = data.error;
+        } else {
+            this._hideElement(this._avatarUploaderWarning);
+            this._avatarUploaderWarning.innerHTML = "";
+        }
     }
 
-    _onChangeAvatarSuccess(data){
-        if (!data.avatar){
-            console.log("No avatar");
+    _onChangeAvatarSuccess(data) {
+        if (!data.avatar) {
+            console.log('No avatar');
             return;
         }
 
-        this._avatar.src=data.avatar;
+        this._avatarUploaderWarning.classList.add('hidden');
+        this._avatarUploaderWarning.innerHTML = "";
 
+        this._avatar.src = data.avatar;
     }
 
     _onCheckAuthResponse(data = {}) {
@@ -58,9 +64,9 @@ export default class ProfileView extends View {
     }
 
     _initElements() {
-
         this._avatar = this.el.querySelector('.js-avatar');
         this._avatarUploader = this.el.querySelector('.js-upload-avatar');
+        this._avatarUploaderWarning = this.el.querySelector('.js-warning-avatar');
 
         this._emailBlock = this.el.querySelector('.js-email-row');
         this._emailEditButton = this._emailBlock.querySelector('button');
@@ -122,8 +128,7 @@ export default class ProfileView extends View {
         this._passwordSubmitButton.addEventListener('click', (ev) => {
             ev.preventDefault();
             this._eventBus.triggerEvent('submitPassword', {pass: this._passwordInputPasswordForm.value});
-        })
-
+        });
     }
 
     _initEventBusEvents() {
@@ -143,7 +148,6 @@ export default class ProfileView extends View {
         }
 
         this._emailField.innerHTML = data.email;
-
     }
 
     _onSubmitPasswordSucces(data) {
@@ -178,7 +182,6 @@ export default class ProfileView extends View {
         SignupView._clearWarning(el, warning);
     }
 
-
     _showElement(el) {
         if (el.classList.contains('hidden')) {
             el.classList.remove('hidden');
@@ -186,9 +189,6 @@ export default class ProfileView extends View {
     }
 
     _hideElement(el) {
-        if (!el.classList.contains('hidden')) {
-            el.classList.add('hidden');
-        }
+        el.classList.add('hidden');
     }
-
 }

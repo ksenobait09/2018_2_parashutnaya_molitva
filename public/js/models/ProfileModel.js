@@ -1,6 +1,6 @@
 import Validation from '../lib/validation.js';
 import Net from '../lib/net.js';
-import Api from "../lib/api.js";
+import Api from '../lib/api.js';
 
 export default class ProfileModel {
     constructor(eventBus, globalEventBus) {
@@ -16,7 +16,6 @@ export default class ProfileModel {
         this._eventBus.subscribeToEvent('checkAuth', this._onCheckAuth.bind(this));
         this._eventBus.subscribeToEvent('loadUser', this._onLoadUser.bind(this));
         this._globalEventBus.subscribeToEvent('checkUserResponse', this._onCheckUserResponse.bind(this));
-
     }
 
     _onChangeAvatar(data) {
@@ -33,7 +32,7 @@ export default class ProfileModel {
                     this._globalEventBus.triggerEvent('removeUser');
                     this._globalEventBus.triggerEvent('renderHeaderBar');
                 }
-            })
+            });
     }
 
     _onSubmitPassword(data) {
@@ -46,10 +45,17 @@ export default class ProfileModel {
 
         Api.updateUser({
             guid: this._currentUserGUID,
-            password: pass,
+            password: pass
         }).then(res => {
-            if (res.status === 200) {
+            if (res.ok) {
                 this._eventBus.triggerEvent('submitPasswordSuccess', {password: pass});
+            } else {
+                res.json().then(dataResponse => {
+                    if (dataResponse.field === "password") {
+                        this._eventBus.triggerEvent('changePasswordResponse', {error: dataResponse.error});
+                    }
+                })
+
             }
         });
     }
@@ -64,10 +70,16 @@ export default class ProfileModel {
 
         Api.updateUser({
             guid: this._currentUserGUID,
-            email,
+            email
         }).then(res => {
-            if (res.status === 200) {
+            if (res.ok) {
                 this._eventBus.triggerEvent('submitEmailSuccess', {email});
+            } else {
+                res.json().then(dataResponse => {
+                    if (dataResponse.field === "email") {
+                        this._eventBus.triggerEvent('changeEmailResponse', {error: dataResponse.error});
+                    }
+                })
             }
         });
     }
@@ -111,13 +123,10 @@ export default class ProfileModel {
                         this._currentUserGUID = user.guid;
                         user.avatar = !user.avatar ? 'default-avatar.svg' : Net.getStorageURL() + user.avatar;
                         this._eventBus.triggerEvent('loadUserResponse', {user});
-
                     }
-                })
-
+                });
         } else {
-
-            data.user.avatar = !data.user.avatar ? "default-avatar.svg": Net.getStorageURL() + data.user.avatar;
+            data.user.avatar = !data.user.avatar ? 'default-avatar.svg' : Net.getStorageURL() + data.user.avatar;
             this._currentUserGUID = data.user.guid;
             this._eventBus.triggerEvent('loadUserResponse', {user: data.user});
         }
@@ -129,19 +138,19 @@ export default class ProfileModel {
     }
 
     _onCheckAuth() {
-        Net.doGet({url: "/api/session"})
+        Net.doGet({url: '/api/session'})
             .then(response => {
                 if (response.status !== 200) {
                     response.json().then(data => this._eventBus.triggerEvent('checkAuthResponse', {
                         isAuth: false,
-                        error: data.error,
-                    }))
+                        error: data.error
+                    }));
                 } else {
                     response.json().then(data => {
                         this._eventBus.triggerEvent('checkAuthResponse', {
                             isAuth: true,
-                            user_guid: data.user_guid,
-                        })
+                            user_guid: data.user_guid
+                        });
                     });
                 }
             })
